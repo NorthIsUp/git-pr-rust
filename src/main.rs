@@ -132,6 +132,7 @@ fn fetch_pr_info(branch: String) -> Result<PrInfo, Box<dyn Error>> {
     .join(sep);
 
     let cmd = format!("hub pr list -f '{sep}{formatstr}{sep}' -h '{branch}'");
+
     let output = run(cmd);
     let info: PrInfo = output.parse()?;
     println!("info {:#?}", info);
