@@ -43,6 +43,7 @@ struct Args {
     color: String,
 }
 
+/// do the actual work
 fn run() -> Result<(), Box<dyn Error>> {
     let _args = Args::parse();
     let repo = current_repo();
