@@ -1,14 +1,18 @@
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package]
 name = "git-pr-rust"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-clap = { version = "3.1.8", features = ["derive"] }
+clap = { version = "3.1.10", features = ["derive"] }
 subprocess = { version = "0.2.8" }
-recap ={}
-serde ={}
+git2 = {version = "0.14.2"}
+recap ={version = "0.1.2"}
+serde ={version = "1.0.136"}
+colored = {version = "2.0.0"}
+unindent = {version = "0.1.8"}
+spinners = {version = "3.1.0"}
+
 [dev-dependencies]
-pretty_assertions = "1"
+pretty_assertions = "1.2.1"

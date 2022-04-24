@@ -1,10 +1,18 @@
-use std::{error::Error, process::exit};
+use std::error::Error;
 
-use clap::Parser;
+use crate::{
+    git_commands::current_branch_name,
+    prinfo::{create_pr, fetch_pr_info, format_pr_info},
+};
 
-use recap::Recap;
-use serde::Deserialize;
-use subprocess::{Exec, Redirection};
+mod git_commands;
+mod prinfo;
+mod shell;
+
+use {
+    crate::git_commands::{current_repo, get_main_branch},
+    clap::Parser,
+};
 
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
@@ -29,112 +37,42 @@ struct Args {
     /// asdf
     #[clap(long, default_value_t = String::from("main"))]
     branch: String,
+
+    // color
+    #[clap(long, default_value_t = String::from("auto"))]
+    color: String,
+}
+
+fn run() -> Result<(), Box<dyn Error>> {
+    let _args = Args::parse();
+    let repo = current_repo();
+    let branch = current_branch_name(&repo).ok_or("xno branch found")?;
+
+    // disallow pr's against main branch
+    let main_branch = get_main_branch(&repo)?;
+    let main_branch_name = main_branch.name()?.expect("need a branch bro");
+    if ["master", "master"].contains(&&branch[..]) || branch == main_branch_name {
+        panic!("can't pr against {}", branch)
+    }
+
+    print!("--> checking for branch {:#?}", branch);
+
+    let _ = create_pr(&repo, false);
+    let pr_info = fetch_pr_info(branch)
+        .or_else(|| create_pr(&repo, false))
+        .ok_or("no pr info found")?;
+
+    println!("{}", format_pr_info(pr_info));
+
+    Ok(())
 }
 
 fn main() {
-    let args = Args::parse();
-
-    // run(["git", ""])
-    println!("sup {:#?}", args);
-
-    fetch_pr_info(args.branch);
-}
-
-fn run(cmd: String) -> String {
-    println!("running {}", cmd);
-    match Exec::shell(cmd).stdout(Redirection::Pipe).capture() {
-        Err(_v) => exit(1),
-        Ok(v) => v.stdout_str(),
-    }
-}
-
-#[derive(Debug, Clone, Deserialize, Recap)]
-#[recap(
-    regex = r"@@@@@(?P<number>.*)@@@@@(?P<number_hash>.*)@@@@@(?P<url>.*)@@@@@(?P<state>.*)@@@@@(?P<state_long>.*)@@@@@(?P<pr_color>.*)@@@@@(?P<pr_color_long>.*)@@@@@(?P<title>.*)@@@@@(?P<body>.*)@@@@@(?P<base>.*)@@@@@(?P<base_sha>.*)@@@@@(?P<head>.*)@@@@@(?P<head_sha>.*)@@@@@(?P<merge_commit>.*)@@@@@(?P<author>.*)@@@@@(?P<assignees>.*)@@@@@(?P<reviewers>.*)@@@@@(?P<milestone_number>.*)@@@@@(?P<milestone_title>.*)@@@@@(?P<milestone_comments>.*)@@@@@(?P<milestone_comments_pretty>.*)@@@@@(?P<created_date>.*)@@@@@(?P<created_rel>.*)@@@@@(?P<created_ts>.*)@@@@@(?P<created>.*)@@@@@(?P<updated_date>.*)@@@@@(?P<updated_rel>.*)@@@@@(?P<updated_ts>.*)@@@@@(?P<updated>.*)@@@@@(?P<merged_date>.*)@@@@@(?P<merged_rel>.*)@@@@@(?P<merged_ts>.*)@@@@@(?P<merged>.*)@@@@@"
-)]
-struct PrInfo {
-    /// pull request number
-    number: String,
-    /// pull request number prefixed with "#"
-    number_hash: String,
-    /// the URL of this pull request
-    url: String,
-    /// state ("open" or "closed")
-    state: String,
-    /// pull request state ("open", "draft", "merged", or "closed")
-    state_long: String,
-    /// set color to red or green, depending on state
-    pr_color: String,
-    /// set color according to pull request state
-    pr_color_long: String,
-    /// title
-    title: String,
-    /// body
-    body: String,
-    /// base branch
-    base: String,
-    /// base commit SHA
-    base_sha: String,
-    /// head branch
-    head: String,
-    /// head commit SHA
-    head_sha: String,
-    /// merge commit SHA
-    merge_commit: String,
-    /// login name of author
-    author: String,
-    /// comma-separated list of assignees
-    assignees: String,
-    /// comma-separated list of requested reviewers
-    reviewers: String,
-    /// milestone number
-    milestone_number: String,
-    /// milestone title
-    milestone_title: String,
-    /// number of comments
-    milestone_comments: String,
-    /// number of comments wrapped in parentheses, or blank string if zero.
-    milestone_comments_pretty: String,
-    /// created date-only (no time of day)
-    created_date: String,
-    /// created date, relative
-    created_rel: String,
-    /// created date, UNIX timestamp
-    created_ts: String,
-    /// created date, ISO 8601 format
-    created: String,
-    /// updated date-only (no time of day)
-    updated_date: String,
-    /// updated date, relative
-    updated_rel: String,
-    /// updated date, UNIX timestamp
-    updated_ts: String,
-    /// updated date, ISO 8601 format
-    updated: String,
-    /// merged date-only (no time of day)
-    merged_date: String,
-    /// merged date, relative
-    merged_rel: String,
-    /// merged date, UNIX timestamp
-    merged_ts: String,
-    /// merged date, ISO 8601 format
-    merged: String,
-}
-
-/// fetch the pr info for the given branch
-fn fetch_pr_info(branch: String) -> Result<PrInfo, Box<dyn Error>> {
-    let sep = "@@@@@";
-    let formatstr = [
-        "%I", "%i", "%U", "%S", "%pS", "%sC", "%pC", "%t", "%b", "%B", "%sB", "%H", "%sH", "%sm",
-        "%au", "%as", "%rs", "%Mn", "%Mt", "%NC", "%Nc", "%cD", "%cr", "%ct", "%cI", "%uD", "%ur",
-        "%ut", "%uI", "%mD", "%mr", "%mt", "%mI",
-    ]
-    .join(sep);
-
-    let cmd = format!("hub pr list -f '{sep}{formatstr}{sep}' -h '{branch}'");
-
-    let output = run(cmd);
-    let info: PrInfo = output.parse()?;
-    println!("info {:#?}", info);
-    return Ok(info);
+    std::process::exit(match run() {
+        Ok(_) => 0,
+        Err(err) => {
+            eprintln!("error: {:?}", err);
+            1
+        }
+    });
 }
