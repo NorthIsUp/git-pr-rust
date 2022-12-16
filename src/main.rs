@@ -1,17 +1,14 @@
 use std::error::Error;
 
-use crate::{
-    git_commands::current_branch_name,
-    prinfo::{create_pr, fetch_pr_info, format_pr_info},
-};
-
 mod git_commands;
 mod prinfo;
 mod shell;
 
-use {
-    crate::git_commands::{current_repo, get_main_branch},
-    clap::Parser,
+use clap::Parser;
+
+use crate::{
+    git_commands::{current_branch_name, current_repo, get_main_branch, remote_gh_name},
+    prinfo::{create_pr, fetch_pr_info},
 };
 
 /// Simple program to greet a person
@@ -47,23 +44,23 @@ struct Args {
 fn run() -> Result<(), Box<dyn Error>> {
     let _args = Args::parse();
     let repo = current_repo();
-    let branch = current_branch_name(&repo).ok_or("xno branch found")?;
+    let branch = current_branch_name(&repo).ok_or("no branch found")?;
 
     // disallow pr's against main branch
     let main_branch = get_main_branch(&repo)?;
     let main_branch_name = main_branch.name()?.expect("need a branch bro");
-    if ["master", "master"].contains(&&branch[..]) || branch == main_branch_name {
+    if ["master", "main"].contains(&&branch[..]) || branch == main_branch_name {
         panic!("can't pr against {}", branch)
     }
 
-    print!("--> checking for branch {:#?}", branch);
+    println!("--> checking for branch {:#?}", branch);
 
     let _ = create_pr(&repo, false);
     let pr_info = fetch_pr_info(branch)
         .or_else(|| create_pr(&repo, false))
         .ok_or("no pr info found")?;
 
-    println!("{}", format_pr_info(pr_info));
+    println!("{}", pr_info.to_string());
 
     Ok(())
 }

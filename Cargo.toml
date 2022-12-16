@@ -12,7 +12,9 @@ recap ={version = "0.1.2"}
 serde ={version = "1.0.136"}
 colored = {version = "2.0.0"}
 unindent = {version = "0.1.8"}
-spinners = {version = "3.1.0"}
+spinners = {version = "4.0.0"}
+log = { version = "0.4.16"}
+octocrab = { version = "0.17.0" }
 
 [dev-dependencies]
 pretty_assertions = "1.2.1"
