@@ -1,14 +1,14 @@
 use std::error::Error;
 
 mod git_commands;
-mod prinfo;
+mod prinfo_gh;
 mod shell;
 
 use clap::Parser;
 
 use crate::{
     git_commands::{current_branch_name, current_repo, get_main_branch, remote_gh_name},
-    prinfo::{create_pr, fetch_pr_info},
+    prinfo_gh::PrInfo,
 };
 
 /// Simple program to greet a person
@@ -56,8 +56,8 @@ fn run() -> Result<(), Box<dyn Error>> {
     println!("--> checking for branch {:#?}", branch);
 
     let _ = create_pr(&repo, false);
-    let pr_info = fetch_pr_info(branch)
-        .or_else(|| create_pr(&repo, false))
+    let pr_info = PrInfo::get(branch)
+        .or_else(|| PrInfo::new(&repo, false))
         .ok_or("no pr info found")?;
 
     println!("{}", pr_info.to_string());
