@@ -1,16 +1,19 @@
 use std::error::Error;
 
+use log::info;
+
+pub mod cli;
 mod git_commands;
-mod prinfo_gh;
+mod prinfo;
 mod shell;
 
 use clap::Parser;
+use simple_logger::SimpleLogger;
 
 use crate::{
-    git_commands::{current_branch_name, current_repo, get_main_branch, remote_gh_name},
-    prinfo_gh::PrInfo,
+    git_commands::{current_branch_name, current_repo, get_main_branch},
+    prinfo::PrInfo,
 };
-
 /// Simple program to greet a person
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -41,36 +44,39 @@ struct Args {
 }
 
 /// do the actual work
-fn run() -> Result<(), Box<dyn Error>> {
-    let _args = Args::parse();
-    let repo = current_repo();
-    let branch = current_branch_name(&repo).ok_or("no branch found")?;
+// fn run() -> Result<(), Box<dyn Error>> {
+//     let _args = Args::parse();
+//     let repo = current_repo();
+//     let branch = current_branch_name(&repo).ok_or("no branch found")?;
 
-    // disallow pr's against main branch
-    let main_branch = get_main_branch(&repo)?;
-    let main_branch_name = main_branch.name()?.expect("need a branch bro");
-    if ["master", "main"].contains(&&branch[..]) || branch == main_branch_name {
-        panic!("can't pr against {}", branch)
-    }
+//     // disallow pr's against main branch
+//     let main_branch = get_main_branch(&repo)?;
+//     let main_branch_name = main_branch.name()?.expect("need a branch bro");
+//     if ["master", "main"].contains(&&branch[..]) || branch == main_branch_name {
+//         panic!("can't pr against {}", branch)
+//     }
 
-    println!("--> checking for branch {:#?}", branch);
+//     info!("--> checking for branch {:#?}", branch);
 
-    let _ = create_pr(&repo, false);
-    let pr_info = PrInfo::get(branch)
-        .or_else(|| PrInfo::new(&repo, false))
-        .ok_or("no pr info found")?;
+//     let _ = PrInfo::new(&repo, false);
+//     let pr_info = PrInfo::get(branch)
+//         .or_else(|| PrInfo::new(&repo, false))
+//         .ok_or("no pr info found")?;
 
-    println!("{}", pr_info.to_string());
+//     println!("{}", pr_info.to_string());
 
-    Ok(())
-}
+//     Ok(())
+// }
 
 fn main() {
-    std::process::exit(match run() {
-        Ok(_) => 0,
-        Err(err) => {
-            eprintln!("error: {:?}", err);
-            1
-        }
-    });
+    let logger = SimpleLogger::new().init().unwrap();
+    log::set_max_level(log::LevelFilter::Info);
+    cli::main();
+    // std::process::exit(match run() {
+    //     Ok(_) => 0,
+    //     Err(err) => {
+    //         eprintln!("error: {:?}", err);
+    //         1
+    //     }
+    // });
 }

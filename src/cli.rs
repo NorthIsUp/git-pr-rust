@@ -1,0 +1,276 @@
+use std::{
+    collections::HashMap,
+    thread::sleep,
+    time::{Duration, Instant, SystemTime},
+};
+
+use colored::Colorize;
+use console::Emoji;
+use git2::Repository;
+use indicatif::{HumanDuration, MultiProgress, ProgressBar, ProgressStyle};
+
+use crate::{
+    git_commands::{current_branch_name, current_repo},
+    prinfo::PrInfo,
+};
+struct App {
+    branch: String,
+    mp: MultiProgress,
+    progress_bars: HashMap<String, ProgressBar>,
+}
+#[derive(Debug, Default, Clone)]
+struct Pb {
+    key: String,
+    prefix: String,
+    message: String,
+    template: String,
+    tick_chars: String,
+    indent: usize,
+}
+impl Pb {
+    fn new(key: &str) -> Self {
+        Self {
+            key: key.to_string(),
+            ..Default::default()
+        }
+    }
+    fn new_with_pkey<S: Into<String>>(key: S) -> Self {
+        let key = key.into();
+        Self::new(&key).with_prefix(&key)
+    }
+    fn new_with_pkey_and_message<S1: Into<String>, S2: Into<String>>(key: S1, message: S2) -> Self {
+        let key = key.into();
+        Self::new(&key).with_prefix(&key).with_message(message)
+    }
+    fn new_header<S: Into<String>>(key: S) -> Self {
+        Self::new_with_pkey(key).as_header()
+    }
+    fn new_section<S: Into<String>>(key: S) -> Self {
+        Self::new_with_pkey(key).as_section()
+    }
+    fn with_prefix<S: Into<String>>(&mut self, prefix: S) -> Self {
+        self.prefix = prefix.into();
+        self.clone()
+    }
+    fn with_message<S: Into<String>>(&mut self, message: S) -> Self {
+        self.message = message.into();
+        self.clone()
+    }
+    fn with_template<S: Into<String>>(&mut self, template: S) -> Self {
+        self.template = template.into();
+        self.clone()
+    }
+    fn with_tick_chars<S: Into<String>>(&mut self, tick_chars: S) -> Self {
+        self.tick_chars = tick_chars.into();
+        self.clone()
+    }
+    fn with_indent(&mut self, indent: usize) -> Self {
+        self.indent = indent;
+        self.clone()
+    }
+    fn as_header(&mut self) -> Self {
+        self.with_template(format!(
+            "{} {}",
+            "====>".magenta(),
+            "{prefix:.white.bold}{msg:.white.bold}"
+        ))
+    }
+    fn as_section(&mut self) -> Self {
+        self.with_template(format!(
+            "{} {}",
+            "---->".magenta(),
+            "{prefix:.white.bold}{msg:.white.bold}"
+        ))
+    }
+}
+
+impl App {
+    fn new() -> Self {
+        let repo = current_repo();
+        let branch = current_branch_name(&repo).expect("must have a branch name");
+        Self {
+            branch,
+            mp: MultiProgress::new(),
+            progress_bars: HashMap::new(),
+        }
+    }
+
+    fn pb(&mut self, pb_args: &Pb) -> ProgressBar {
+        if !self.progress_bars.contains_key(&pb_args.key) {
+            self.progress_bars
+                .insert(pb_args.key.clone(), ProgressBar::new(100));
+            self.mp.add(self.progress_bars[&pb_args.key].clone());
+        }
+
+        let pb = self.progress_bars.get(&pb_args.key).unwrap();
+        if !pb_args.message.is_empty() {
+            pb.set_message(pb_args.message.clone());
+        }
+
+        if !pb_args.prefix.is_empty() {
+            pb.set_prefix(pb_args.prefix.clone());
+        }
+
+        let mut template = match [!pb_args.template.is_empty(), !pb_args.prefix.is_empty()] {
+            [true, _] => pb_args.template.clone(),
+            [false, true] => format!(
+                "{} {} {}",
+                "{prefix:10.white}",
+                "-->".magenta(),
+                "{wide_msg}"
+            ),
+            [false, false] => "{wide_msg}".to_string(),
+        };
+
+        if pb_args.indent > 0 {
+            template = format!("{}{}", " ".repeat(pb_args.indent), template);
+        }
+
+        let tick_chars = match pb_args.tick_chars.is_empty() {
+            true => "⣾⣽⣻⢿⡿⣟⣯⣷",
+            false => pb_args.tick_chars.as_str(),
+        };
+
+        pb.set_style(
+            ProgressStyle::with_template(template.as_str())
+                .expect("ok")
+                .tick_chars(tick_chars),
+        );
+        return self.progress_bars[&pb_args.key].clone()
+    }
+
+    fn get_progress_bars(&mut self, pr_info: &PrInfo) -> Vec<ProgressBar> {
+        let mut pb_keys: Vec<Pb> = vec![];
+
+        pb_keys.extend([
+            Pb::new_header("header")
+                .with_prefix(format!("#{} - {}", pr_info.number, pr_info.title)),
+            Pb::new_with_pkey_and_message("url", &pr_info.url)
+                .with_template("> {msg}")
+                .with_indent(4),
+            Pb::new_section("body"),
+            Pb::new("_body").with_message(&pr_info.body),
+        ]);
+
+        if !pr_info.files.is_empty() {
+            pb_keys.push(Pb::new_section("files"));
+            let files = pr_info.files.clone();
+            let longest_file = files
+                .iter()
+                .max_by(|a, b| a.path.len().cmp(&b.path.len()))
+                .unwrap()
+                .path
+                .len();
+            pb_keys.extend(files.iter().map(|f| {
+                Pb::new_with_pkey_and_message(
+                    f.path.as_str(),
+                    format!(
+                        "{}{}",
+                        "+".repeat(f.additions).green(),
+                        "-".repeat(f.deletions).red()
+                    ),
+                )
+                .with_template(format!(
+                    "  {} {{prefix:{longest_file}}} {} {{msg}}",
+                    "-->".magenta(),
+                    "|".magenta(),
+                ))
+            }));
+        }
+
+        pb_keys.extend([
+            Pb::new_section("details"),
+            Pb::new_with_pkey_and_message("state", &pr_info.state),
+            Pb::new_with_pkey_and_message("author", &pr_info.author.login),
+            Pb::new_with_pkey_and_message("createdAt", &pr_info.createdAt),
+            Pb::new_with_pkey_and_message("updatedAt", &pr_info.updatedAt),
+            Pb::new_with_pkey_and_message("state", &pr_info.state),
+            Pb::new_with_pkey_and_message("sha", pr_info.sha()),
+            Pb::new_with_pkey_and_message("url", pr_info.url.clone()),
+        ]);
+
+        if !pr_info.statusCheckRollup.is_empty() {
+            pb_keys.push(Pb::new_section("checks"));
+            pb_keys.extend(pr_info.statusCheckRollup.iter().map(|sc| {
+                let spinner = if sc.is_complete() { " " } else { " {spinner} " };
+                Pb::new_with_pkey_and_message(
+                    sc.name(),
+                    format!("[{}]", sc.short_status_string_with_color()),
+                )
+                .with_template(format!("{{msg}}{spinner}{{prefix:.bold.dim}}"))
+            }));
+        }
+
+        let pbs = pb_keys
+            .iter()
+            .map(|pb_args| self.pb(pb_args))
+            .collect::<Vec<ProgressBar>>();
+        pbs.iter().for_each(|pb| pb.tick());
+        return pbs
+    }
+
+    fn run_loop(&mut self) {
+        let mut pr_info = PrInfo::get(self.branch.clone()).expect("must have pr info");
+        let start = SystemTime::now();
+        let five_seconds = Duration::from_secs(5);
+        loop {
+            self.loop_once(&mut pr_info);
+            // if  {
+            //     self.mp.clear().unwrap();
+            //     break
+            // }
+            if SystemTime::now().duration_since(start).unwrap() > five_seconds
+                || pr_info.is_complete()
+            {
+                self.get_progress_bars(&pr_info).iter().for_each(|pb| {
+                    pb.finish();
+                });
+                break
+            }
+
+            sleep(Duration::from_millis(20));
+            // self.refresh();
+        }
+    }
+
+    fn loop_once(&mut self, pr_info: &mut PrInfo) {
+        pr_info.update();
+        let pbs = self.get_progress_bars(&pr_info);
+    }
+}
+
+static SPARKLE: Emoji<'_, '_> = Emoji("✨ ", ":-)");
+
+pub fn main() {
+    let started = Instant::now();
+    // main2();
+    let mut app = App::new();
+    app.run_loop();
+
+    println!("{} Done in {}", SPARKLE, HumanDuration(started.elapsed()));
+}
+
+use std::sync::Arc;
+
+pub fn main2() {
+    let m = Arc::new(MultiProgress::new());
+    let sty = ProgressStyle::with_template("{bar:40.green/yellow} {pos:>7}/{len:7}").unwrap();
+
+    let pb = m.add(ProgressBar::new(5));
+    pb.set_style(sty.clone());
+
+    // make sure we show up at all.  otherwise no rendering
+    // event.
+    pb.tick();
+    for _ in 0..5 {
+        let pb2 = m.add(ProgressBar::new(128));
+        pb2.set_style(sty.clone());
+        for _ in 0..128 {
+            pb2.inc(1);
+            sleep(Duration::from_millis(5));
+        }
+        pb2.finish();
+        pb.inc(1);
+    }
+    pb.finish_with_message("done");
+}
