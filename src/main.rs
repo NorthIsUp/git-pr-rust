@@ -68,10 +68,12 @@ struct Args {
 //     Ok(())
 // }
 
-fn main() {
+#[tokio::main]
+
+async fn main() {
     let logger = SimpleLogger::new().init().unwrap();
     log::set_max_level(log::LevelFilter::Info);
-    cli::main();
+    cli::main().await;
     // std::process::exit(match run() {
     //     Ok(_) => 0,
     //     Err(err) => {

@@ -1,22 +1,25 @@
 use std::{
+    borrow::Borrow,
     collections::HashMap,
+    error::Error,
+    sync::{Arc, Mutex, MutexGuard},
     thread::sleep,
     time::{Duration, Instant, SystemTime},
 };
 
 use colored::Colorize;
 use console::Emoji;
-use git2::Repository;
 use indicatif::{HumanDuration, MultiProgress, ProgressBar, ProgressStyle};
 
 use crate::{
     git_commands::{current_branch_name, current_repo},
     prinfo::PrInfo,
 };
+const five_seconds: Duration = Duration::from_secs(5);
 struct App {
     branch: String,
     mp: MultiProgress,
-    progress_bars: HashMap<String, ProgressBar>,
+    progress_bars: Arc<Mutex<HashMap<String, ProgressBar>>>,
 }
 #[derive(Debug, Default, Clone)]
 struct Pb {
@@ -27,6 +30,7 @@ struct Pb {
     tick_chars: String,
     indent: usize,
 }
+
 impl Pb {
     fn new(key: &str) -> Self {
         Self {
@@ -91,18 +95,18 @@ impl App {
         Self {
             branch,
             mp: MultiProgress::new(),
-            progress_bars: HashMap::new(),
+            progress_bars: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
     fn pb(&mut self, pb_args: &Pb) -> ProgressBar {
-        if !self.progress_bars.contains_key(&pb_args.key) {
-            self.progress_bars
-                .insert(pb_args.key.clone(), ProgressBar::new(100));
-            self.mp.add(self.progress_bars[&pb_args.key].clone());
+        let mut progress_bars = self.progress_bars.lock().unwrap();
+        if !progress_bars.contains_key(&pb_args.key) {
+            progress_bars.insert(pb_args.key.clone(), ProgressBar::new(100));
+            self.mp.add(progress_bars[&pb_args.key].clone());
         }
 
-        let pb = self.progress_bars.get(&pb_args.key).unwrap();
+        let pb = progress_bars.get(&pb_args.key).unwrap();
         if !pb_args.message.is_empty() {
             pb.set_message(pb_args.message.clone());
         }
@@ -136,7 +140,7 @@ impl App {
                 .expect("ok")
                 .tick_chars(tick_chars),
         );
-        return self.progress_bars[&pb_args.key].clone()
+        return progress_bars[&pb_args.key].clone()
     }
 
     fn get_progress_bars(&mut self, pr_info: &PrInfo) -> Vec<ProgressBar> {
@@ -164,11 +168,7 @@ impl App {
             pb_keys.extend(files.iter().map(|f| {
                 Pb::new_with_pkey_and_message(
                     f.path.as_str(),
-                    format!(
-                        "{}{}",
-                        "+".repeat(f.additions).green(),
-                        "-".repeat(f.deletions).red()
-                    ),
+                    format!("{}{}{}{}", f.additions, "+".green(), f.deletions, "-".red()),
                 )
                 .with_template(format!(
                     "  {} {{prefix:{longest_file}}} {} {{msg}}",
@@ -209,51 +209,78 @@ impl App {
         return pbs
     }
 
-    fn run_loop(&mut self) {
-        let mut pr_info = PrInfo::get(self.branch.clone()).expect("must have pr info");
+    // async fn update_bars(&mut self, pr_info: &Arc<Mutex<PrInfo>>) {
+    //     let start = SystemTime::now();
+
+    //     loop {
+    //         tokio::spawn(async move {
+    //             self.get_progress_bars(&pr_info.clone().lock().unwrap())
+    //                 .iter()
+    //                 .for_each(|pb| {
+    //                     pb.tick();
+    //                 });
+    //         });
+
+    //         if SystemTime::now().duration_since(start).unwrap() > five_seconds
+    //             || pr_info.clone().lock().unwrap().is_complete()
+    //         {
+    //             self.get_progress_bars(&pr_info.clone().lock().unwrap())
+    //                 .iter()
+    //                 .for_each(|pb| {
+    //                     pb.finish();
+    //                 });
+    //             break
+    //         }
+    //     }
+    // }
+    async fn run_loop(&mut self) {
         let start = SystemTime::now();
-        let five_seconds = Duration::from_secs(5);
+        let pr_info = Arc::new(Mutex::new(
+            PrInfo::get(self.branch.clone()).expect("must have pr info"),
+        ));
+
         loop {
-            self.loop_once(&mut pr_info);
-            // if  {
-            //     self.mp.clear().unwrap();
-            //     break
-            // }
-            if SystemTime::now().duration_since(start).unwrap() > five_seconds
-                || pr_info.is_complete()
-            {
-                self.get_progress_bars(&pr_info).iter().for_each(|pb| {
-                    pb.finish();
-                });
+            let pr_info = pr_info.clone();
+            if pr_info.clone().lock().unwrap().is_complete() {
                 break
             }
+            self.get_progress_bars(&pr_info.lock().unwrap())
+                .iter()
+                .for_each(|pb| {
+                    pb.tick();
+                });
 
-            sleep(Duration::from_millis(20));
+            tokio::spawn(async move {
+                let pr_info = pr_info.clone();
+                pr_info.lock().unwrap().update();
+            });
+
+            sleep(Duration::from_millis(5));
             // self.refresh();
         }
-    }
 
-    fn loop_once(&mut self, pr_info: &mut PrInfo) {
-        pr_info.update();
-        let pbs = self.get_progress_bars(&pr_info);
+        self.get_progress_bars(&pr_info.lock().unwrap())
+            .iter()
+            .for_each(|pb| {
+                pb.finish();
+            });
     }
 }
 
 static SPARKLE: Emoji<'_, '_> = Emoji("✨ ", ":-)");
 
-pub fn main() {
+pub(crate) async fn main() -> Result<(), Box<dyn Error>> {
     let started = Instant::now();
     // main2();
     let mut app = App::new();
-    app.run_loop();
+    app.run_loop().await;
 
     println!("{} Done in {}", SPARKLE, HumanDuration(started.elapsed()));
+    Ok(())
 }
 
-use std::sync::Arc;
-
-pub fn main2() {
-    let m = Arc::new(MultiProgress::new());
+async fn main2() {
+    let m = MultiProgress::new();
     let sty = ProgressStyle::with_template("{bar:40.green/yellow} {pos:>7}/{len:7}").unwrap();
 
     let pb = m.add(ProgressBar::new(5));

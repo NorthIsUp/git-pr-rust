@@ -21,6 +21,7 @@ simple_logger               = { version = "4.0.0", features = ["colors", "stderr
 spinners                    = { version = "4.0.0" }
 struct-field-names-as-array = { version = "0.1.4" }
 subprocess                  = { version = "0.2.8" }
+tokio                       = { version = "1", features = ["full"] }
 unindent                    = { version = "0.1.8" }
 
 [dev-dependencies]

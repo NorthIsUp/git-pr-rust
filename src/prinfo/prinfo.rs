@@ -15,7 +15,8 @@ fn mocks(s: &str) -> String {
     match s {
         "fix-main/1" => include_str!("d1.json").to_string(),
         "simple" => include_str!("d2.json").to_string(),
-        _ => panic!("unknown test case"),
+        "d2" => include_str!("d2.json").to_string(),
+        _ => panic!("no mock for {}", s),
     }
 }
 
@@ -83,7 +84,7 @@ impl PrInfo {
         //     s if s.is_empty() => None,
         //     s => Some(s),
         // });
-        // let stdout = Some(mocks("fix-main/1"));
+        // let stdout = Some(mocks("d2"));
         debug!("{:?}", stdout.clone()?);
         let pr_info = match from_str::<[PrInfo; 1]>(&stdout?) {
             Ok([pr_info]) => PrInfo {
@@ -133,7 +134,6 @@ impl PrInfo {
         {
             let pr_info = PrInfo::get(&self.headRefName).expect("must have new info");
             pr_info.clone_into(self);
-
             // info!("updated pr info");
         } else {
             // info!("cached pr info");
