@@ -1,8 +1,7 @@
 use std::{
-    borrow::Borrow,
     collections::HashMap,
     error::Error,
-    sync::{Arc, Mutex, MutexGuard},
+    sync::{Arc, Mutex},
     thread::sleep,
     time::{Duration, Instant, SystemTime},
 };
@@ -15,7 +14,6 @@ use crate::{
     git_commands::{current_branch_name, current_repo},
     prinfo::PrInfo,
 };
-const five_seconds: Duration = Duration::from_secs(5);
 struct App {
     branch: String,
     mp: MultiProgress,
@@ -205,34 +203,9 @@ impl App {
             .iter()
             .map(|pb_args| self.pb(pb_args))
             .collect::<Vec<ProgressBar>>();
-        pbs.iter().for_each(|pb| pb.tick());
         return pbs
     }
 
-    // async fn update_bars(&mut self, pr_info: &Arc<Mutex<PrInfo>>) {
-    //     let start = SystemTime::now();
-
-    //     loop {
-    //         tokio::spawn(async move {
-    //             self.get_progress_bars(&pr_info.clone().lock().unwrap())
-    //                 .iter()
-    //                 .for_each(|pb| {
-    //                     pb.tick();
-    //                 });
-    //         });
-
-    //         if SystemTime::now().duration_since(start).unwrap() > five_seconds
-    //             || pr_info.clone().lock().unwrap().is_complete()
-    //         {
-    //             self.get_progress_bars(&pr_info.clone().lock().unwrap())
-    //                 .iter()
-    //                 .for_each(|pb| {
-    //                     pb.finish();
-    //                 });
-    //             break
-    //         }
-    //     }
-    // }
     async fn run_loop(&mut self) {
         let start = SystemTime::now();
         let pr_info = Arc::new(Mutex::new(
@@ -241,22 +214,21 @@ impl App {
 
         loop {
             let pr_info = pr_info.clone();
-            if pr_info.clone().lock().unwrap().is_complete() {
+            if pr_info.lock().unwrap().is_complete() {
                 break
             }
+
             self.get_progress_bars(&pr_info.lock().unwrap())
                 .iter()
                 .for_each(|pb| {
-                    pb.tick();
+                    pb.inc(1);
                 });
 
             tokio::spawn(async move {
-                let pr_info = pr_info.clone();
                 pr_info.lock().unwrap().update();
             });
 
-            sleep(Duration::from_millis(5));
-            // self.refresh();
+            sleep(Duration::from_millis(75));
         }
 
         self.get_progress_bars(&pr_info.lock().unwrap())
@@ -271,33 +243,10 @@ static SPARKLE: Emoji<'_, '_> = Emoji("✨ ", ":-)");
 
 pub(crate) async fn main() -> Result<(), Box<dyn Error>> {
     let started = Instant::now();
-    // main2();
     let mut app = App::new();
+
     app.run_loop().await;
 
     println!("{} Done in {}", SPARKLE, HumanDuration(started.elapsed()));
     Ok(())
-}
-
-async fn main2() {
-    let m = MultiProgress::new();
-    let sty = ProgressStyle::with_template("{bar:40.green/yellow} {pos:>7}/{len:7}").unwrap();
-
-    let pb = m.add(ProgressBar::new(5));
-    pb.set_style(sty.clone());
-
-    // make sure we show up at all.  otherwise no rendering
-    // event.
-    pb.tick();
-    for _ in 0..5 {
-        let pb2 = m.add(ProgressBar::new(128));
-        pb2.set_style(sty.clone());
-        for _ in 0..128 {
-            pb2.inc(1);
-            sleep(Duration::from_millis(5));
-        }
-        pb2.finish();
-        pb.inc(1);
-    }
-    pb.finish_with_message("done");
 }

@@ -72,7 +72,7 @@ struct Args {
 
 async fn main() {
     let logger = SimpleLogger::new().init().unwrap();
-    log::set_max_level(log::LevelFilter::Info);
+    log::set_max_level(log::LevelFilter::Debug);
     cli::main().await;
     // std::process::exit(match run() {
     //     Ok(_) => 0,

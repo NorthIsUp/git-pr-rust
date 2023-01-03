@@ -1,7 +1,8 @@
-use std::{fmt, time::SystemTime};
+use std::{fmt, result, time::SystemTime};
 
 use colored::{ColoredString, Colorize};
-use serde::{Deserialize, Serialize};
+use log::debug;
+use serde::{Deserialize, Serialize, Serializer};
 use struct_field_names_as_array::FieldNamesAsArray;
 
 /// fetch the pr info for the given branch
@@ -89,12 +90,26 @@ pub struct Review {
     state: String,
 }
 
+fn empty_string_as_none<'de, D>(deserializer: D) -> Result<Option<CheckConclusionState>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    match CheckConclusionState::deserialize(deserializer) {
+        Ok(result) => Ok(Some(result)),
+        Err(e) => {
+            debug!("masking: {:?}", e);
+            Ok(None)
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(tag = "__typename")]
 pub enum StatusCheck {
     CheckRun {
         completedAt: String,
-        conclusion: CheckConclusionState,
+        #[serde(deserialize_with = "empty_string_as_none")]
+        conclusion: Option<CheckConclusionState>,
         detailsUrl: String,
         name: String,
         startedAt: String,
@@ -315,16 +330,19 @@ impl StatusCheck {
 
         match self {
             StatusCheck::CheckRun { conclusion, .. } => match conclusion {
-                CheckConclusionState::ActionRequired => "Fail",
-                CheckConclusionState::Cancelled => "Pass",
-                CheckConclusionState::Failure => "Fail",
-                CheckConclusionState::Neutral => "Pass",
-                CheckConclusionState::Skipped => "Skip",
-                CheckConclusionState::Stale => "Fail",
-                CheckConclusionState::StartupFailure => "Fail",
-                CheckConclusionState::Success => " OK ",
-                CheckConclusionState::TimedOut => "Fail",
-                _ => panic!("unexpected status context state: {:?}", conclusion),
+                None => " .. ",
+                Some(conclusion) => match conclusion {
+                    CheckConclusionState::ActionRequired => "Fail",
+                    CheckConclusionState::Cancelled => "Pass",
+                    CheckConclusionState::Failure => "Fail",
+                    CheckConclusionState::Neutral => "Pass",
+                    CheckConclusionState::Skipped => "Skip",
+                    CheckConclusionState::Stale => "Fail",
+                    CheckConclusionState::StartupFailure => "Fail",
+                    CheckConclusionState::Success => " OK ",
+                    CheckConclusionState::TimedOut => "Fail",
+                    _ => panic!("unexpected status context state: {:?}", conclusion),
+                },
             },
             StatusCheck::StatusContext { state, .. } => match state {
                 StatusContextState::Error => "Fail",

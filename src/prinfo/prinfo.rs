@@ -16,6 +16,7 @@ fn mocks(s: &str) -> String {
         "fix-main/1" => include_str!("d1.json").to_string(),
         "simple" => include_str!("d2.json").to_string(),
         "d2" => include_str!("d2.json").to_string(),
+        "d4" => include_str!("d4.json").to_string(),
         _ => panic!("no mock for {}", s),
     }
 }
@@ -80,18 +81,17 @@ impl PrInfo {
             Some(s) if s.stdout.is_empty() => None,
             Some(s) => Some(s.stdout_str()),
         };
-        // .map_or(None, |capture| match capture.stdout_str() {
-        //     s if s.is_empty() => None,
-        //     s => Some(s),
-        // });
-        // let stdout = Some(mocks("d2"));
-        debug!("{:?}", stdout.clone()?);
+        // let stdout = Some(mocks("d4"));
+        // debug!("{:?}", stdout.clone()?);
         let pr_info = match from_str::<[PrInfo; 1]>(&stdout?) {
             Ok([pr_info]) => PrInfo {
                 __createdAt: Some(SystemTime::now()),
                 ..pr_info
             },
-            Err(_) => return None,
+            Err(e) => {
+                debug!("error parsing pr info: {:?}", e);
+                return None
+            }
         };
         return Some(pr_info)
     }
