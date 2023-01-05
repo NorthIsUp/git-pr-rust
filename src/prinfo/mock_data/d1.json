@@ -1,0 +1,324 @@
+[
+    {
+        "additions": 1,
+        "assignees": [],
+        "author": {
+            "login": "NorthIsUp"
+        },
+        "baseRefName": "main",
+        "body": "a test relied on an endpoint that had an expiration of ~4pm dec 13 (or UTC dec 14 00:00). this disables that test.\r\n\r\n`PREMIUM_TIER_2_SNOWSGIVING_ONE_WEEK_PROMOTION_EXPIRATION = datetime(year=2022, month=12, day=14)`",
+        "changedFiles": 1,
+        "closed": true,
+        "closedAt": "2022-12-14T00:58:19Z",
+        "comments": [
+            {
+                "id": "IC_kwDOArvsEs5Qej37",
+                "author": {
+                    "login": "NorthIsUp"
+                },
+                "authorAssociation": "CONTRIBUTOR",
+                "body": "/merge",
+                "createdAt": "2022-12-14T00:48:56Z",
+                "includesCreatedEdit": false,
+                "isMinimized": false,
+                "minimizedReason": "",
+                "reactionGroups": [],
+                "url": "https://github.com/discord/discord/pull/97209#issuecomment-1350188539",
+                "viewerDidAuthor": true
+            },
+            {
+                "id": "IC_kwDOArvsEs5Qej4o",
+                "author": {
+                    "login": "phibi-merge-queue"
+                },
+                "authorAssociation": "NONE",
+                "body": "<!-- phibi merge queue comment -->\n:tada: This PR has been added to the merge queue[^1] and will be merged automatically once tests pass. :tada:\n\nYou can remove this PR from the queue with `/cancel`.\n\n[^1]: [Merge Queue documentation](https://www.notion.so/discordapp/Merge-Queue-d5fd6dd71a244aea97a37b38c1b322a8)\n\n\nClick [here](https://buildkite.com/discord/discord/builds/385166) to view the tests.",
+                "createdAt": "2022-12-14T00:49:00Z",
+                "includesCreatedEdit": true,
+                "isMinimized": false,
+                "minimizedReason": "",
+                "reactionGroups": [],
+                "url": "https://github.com/discord/discord/pull/97209#issuecomment-1350188584",
+                "viewerDidAuthor": false
+            },
+            {
+                "id": "IC_kwDOArvsEs5QelSL",
+                "author": {
+                    "login": "gizmo385"
+                },
+                "authorAssociation": "CONTRIBUTOR",
+                "body": "/break-glass",
+                "createdAt": "2022-12-14T00:58:16Z",
+                "includesCreatedEdit": false,
+                "isMinimized": false,
+                "minimizedReason": "",
+                "reactionGroups": [],
+                "url": "https://github.com/discord/discord/pull/97209#issuecomment-1350194315",
+                "viewerDidAuthor": false
+            },
+            {
+                "id": "IC_kwDOArvsEs5QelSO",
+                "author": {
+                    "login": "NorthIsUp"
+                },
+                "authorAssociation": "CONTRIBUTOR",
+                "body": "/break-glass",
+                "createdAt": "2022-12-14T00:58:16Z",
+                "includesCreatedEdit": false,
+                "isMinimized": false,
+                "minimizedReason": "",
+                "reactionGroups": [],
+                "url": "https://github.com/discord/discord/pull/97209#issuecomment-1350194318",
+                "viewerDidAuthor": true
+            },
+            {
+                "id": "IC_kwDOArvsEs5QelS8",
+                "author": {
+                    "login": "phibi-merge-queue"
+                },
+                "authorAssociation": "NONE",
+                "body": "<!-- phibi merge queue comment -->\n<!--MergeQueueSummary Your PR has been successfully merged. MergeQueueSummary-->\nYour PR has been successfully merged.",
+                "createdAt": "2022-12-14T00:58:21Z",
+                "includesCreatedEdit": false,
+                "isMinimized": false,
+                "minimizedReason": "",
+                "reactionGroups": [],
+                "url": "https://github.com/discord/discord/pull/97209#issuecomment-1350194364",
+                "viewerDidAuthor": false
+            },
+            {
+                "id": "IC_kwDOArvsEs5Qep0r",
+                "author": {
+                    "login": "discord-automation"
+                },
+                "authorAssociation": "CONTRIBUTOR",
+                "body": "<!-- automated deploy notifications info comment -->\n<!-- automated deploy notifications data comment '[[\"**Admin Staging**\", \"https://buildkite.com/discord/api-k8s-release-staging/builds/7419\", \"2022-12-14 01:19:26 UTC\"], [\"**Staging**\", \"https://buildkite.com/discord/api-k8s-release-staging/builds/7419\", \"2022-12-14 01:24:48 UTC\"], [\"**Continuous Canary**\", \"https://buildkite.com/discord/api-k8s-release-continuous-canary/builds/6819\", \"2022-12-14 01:36:17 UTC\"], [\"**Admin Production Canary**\", \"https://buildkite.com/discord/api-k8s-release-production-canary/builds/1279\", \"2022-12-14 02:49:21 UTC\"], [\"**Production Canary**\", \"https://buildkite.com/discord/api-k8s-release-production-canary/builds/1279\", \"2022-12-14 02:53:58 UTC\"], [\"**Admin Production**\", \"https://buildkite.com/discord/api-k8s-release-production/builds/1211\", \"2022-12-14 04:08:35 UTC\"], [\"**Production**\", \"https://buildkite.com/discord/api-k8s-release-production/builds/1211\", \"2022-12-14 04:16:04 UTC\"]]' -->\nThe commit(s) in this Pull Request have been deployed to the following environments:\n\n|environment|deployment build|time|\n|-----------|----------------|----|\n|**Admin Staging**|https://buildkite.com/discord/api-k8s-release-staging/builds/7419|2022-12-14 01:19:26 UTC|\n|**Staging**|https://buildkite.com/discord/api-k8s-release-staging/builds/7419|2022-12-14 01:24:48 UTC|\n|**Continuous Canary**|https://buildkite.com/discord/api-k8s-release-continuous-canary/builds/6819|2022-12-14 01:36:17 UTC|\n|**Admin Production Canary**|https://buildkite.com/discord/api-k8s-release-production-canary/builds/1279|2022-12-14 02:49:21 UTC|\n|**Production Canary**|https://buildkite.com/discord/api-k8s-release-production-canary/builds/1279|2022-12-14 02:53:58 UTC|\n|**Admin Production**|https://buildkite.com/discord/api-k8s-release-production/builds/1211|2022-12-14 04:08:35 UTC|\n|**Production**|https://buildkite.com/discord/api-k8s-release-production/builds/1211|2022-12-14 04:16:04 UTC|\n\n\n---\n*This message brought to you by the compute-infra team. Please visit [#compute-infra-help](https://discord.com/channels/281683040739262465/1037107214013452351) with questions.*",
+                "createdAt": "2022-12-14T01:19:43Z",
+                "includesCreatedEdit": true,
+                "isMinimized": false,
+                "minimizedReason": "",
+                "reactionGroups": [],
+                "url": "https://github.com/discord/discord/pull/97209#issuecomment-1350212907",
+                "viewerDidAuthor": false
+            }
+        ],
+        "commits": [
+            {
+                "authoredDate": "2022-12-14T00:44:32Z",
+                "authors": [
+                    {
+                        "email": "adam@northisup.com",
+                        "id": "MDQ6VXNlcjEyMjYxMg==",
+                        "login": "NorthIsUp",
+                        "name": "Adam Hitchcock"
+                    }
+                ],
+                "committedDate": "2022-12-14T00:44:32Z",
+                "messageBody": "",
+                "messageHeadline": "[tests] disable failing test",
+                "oid": "0b947f7f32703bd408925f74eb9c8330f7e68d0b"
+            }
+        ],
+        "createdAt": "2022-12-14T00:44:54Z",
+        "deletions": 0,
+        "files": [
+            {
+                "path": "discord_api/discord/views/tests/billing/test_get_user_trial_offer.py",
+                "additions": 1,
+                "deletions": 0
+            }
+        ],
+        "headRefName": "fix-main/1",
+        "headRefOid": "0b947f7f32703bd408925f74eb9c8330f7e68d0b",
+        "headRepository": {
+            "id": "MDEwOlJlcG9zaXRvcnk0NTg3MDA5OA==",
+            "name": "discord"
+        },
+        "headRepositoryOwner": {
+            "id": "MDEyOk9yZ2FuaXphdGlvbjE5NjUxMDY=",
+            "login": "discord"
+        },
+        "id": "PR_kwDOArvsEs5FYclg",
+        "isCrossRepository": false,
+        "isDraft": false,
+        "labels": [
+            {
+                "id": "MDU6TGFiZWw3MTAwNDgzODk=",
+                "name": "api",
+                "description": "",
+                "color": "fbca04"
+            },
+            {
+                "id": "MDU6TGFiZWw3MTAxMDk1OTk=",
+                "name": "python",
+                "description": "",
+                "color": "ffce3f"
+            }
+        ],
+        "latestReviews": [
+            {
+                "id": "",
+                "author": {
+                    "login": "gizmo385"
+                },
+                "authorAssociation": "CONTRIBUTOR",
+                "body": "",
+                "submittedAt": "2022-12-14T00:47:44Z",
+                "includesCreatedEdit": false,
+                "reactionGroups": [],
+                "state": "APPROVED"
+            }
+        ],
+        "maintainerCanModify": false,
+        "mergeCommit": {
+            "oid": "982883148b1655f0e7199aeb9ab0cf0989ef3aea"
+        },
+        "mergeStateStatus": "UNKNOWN",
+        "mergeable": "UNKNOWN",
+        "mergedAt": "2022-12-14T00:58:19Z",
+        "mergedBy": {
+            "login": "phibi-merge-queue"
+        },
+        "milestone": null,
+        "number": 97209,
+        "potentialMergeCommit": null,
+        "projectCards": [],
+        "reactionGroups": [],
+        "reviewDecision": "APPROVED",
+        "reviewRequests": [],
+        "reviews": [
+            {
+                "id": "",
+                "author": {
+                    "login": "gizmo385"
+                },
+                "authorAssociation": "CONTRIBUTOR",
+                "body": "",
+                "submittedAt": "2022-12-14T00:47:44Z",
+                "includesCreatedEdit": false,
+                "reactionGroups": [],
+                "state": "APPROVED"
+            }
+        ],
+        "state": "MERGED",
+        "statusCheckRollup": [
+            {
+                "__typename": "CheckRun",
+                "completedAt": "2022-12-14T00:46:28Z",
+                "conclusion": "SUCCESS",
+                "detailsUrl": "https://github.com/discord/discord/actions/runs/3690656889/jobs/6247900862",
+                "name": "Semgrep Scan PR",
+                "startedAt": "2022-12-14T00:45:06Z",
+                "status": "COMPLETED",
+                "workflowName": "Semgrep PR Scan"
+            },
+            {
+                "__typename": "CheckRun",
+                "completedAt": "2022-12-14T00:45:15Z",
+                "conclusion": "SUCCESS",
+                "detailsUrl": "https://github.com/discord/discord/actions/runs/3690656885/jobs/6247900896",
+                "name": "team-labeler",
+                "startedAt": "2022-12-14T00:45:08Z",
+                "status": "COMPLETED",
+                "workflowName": "team-label"
+            },
+            {
+                "__typename": "CheckRun",
+                "completedAt": "2022-12-14T00:46:21Z",
+                "conclusion": "SUCCESS",
+                "detailsUrl": "https://github.com/discord/discord/runs/10078371134",
+                "name": "Semgrep",
+                "startedAt": "2022-12-14T00:46:20Z",
+                "status": "COMPLETED",
+                "workflowName": ""
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/branch-name",
+                "startedAt": "2022-12-14T00:46:03Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/branch-name/builds/146286"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/check-required-reviews",
+                "startedAt": "2022-12-14T00:48:27Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/check-required-reviews/builds/162932"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/code-stewardship-coverage",
+                "startedAt": "2022-12-14T00:46:07Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/code-stewardship-coverage/builds/11281"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/danger",
+                "startedAt": "2022-12-14T00:47:39Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/danger/builds/213960"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/discord",
+                "startedAt": "2022-12-14T01:01:12Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/discord/builds/385154"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/discord-api-tests",
+                "startedAt": "2022-12-14T01:01:12Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/discord-api-tests/builds/161463"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/discord-cypress-ui-tests",
+                "startedAt": "2022-12-14T00:54:33Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/discord-cypress-ui-tests/builds/36240"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/harbormaster",
+                "startedAt": "2022-12-14T00:50:59Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/harbormaster/builds/751846"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/python-black",
+                "startedAt": "2022-12-14T00:48:25Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/python-black/builds/133073"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/python-isort",
+                "startedAt": "2022-12-14T00:46:13Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/python-isort/builds/113032"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/python-mypy",
+                "startedAt": "2022-12-14T00:48:29Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/python-mypy/builds/106110"
+            },
+            {
+                "__typename": "StatusContext",
+                "context": "buildkite/python-pyupgrade",
+                "startedAt": "2022-12-14T00:47:01Z",
+                "state": "SUCCESS",
+                "targetUrl": "https://buildkite.com/discord/python-pyupgrade/builds/57211"
+            }
+        ],
+        "title": "[tests] disable failing test",
+        "updatedAt": "2022-12-14T04:16:42Z",
+        "url": "https://github.com/discord/discord/pull/97209"
+    }
+]

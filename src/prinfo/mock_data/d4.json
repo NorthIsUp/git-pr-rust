@@ -1,0 +1,219 @@
+[
+    {
+        "additions": 1417,
+        "assignees": [],
+        "author": {
+            "login": "NorthIsUp"
+        },
+        "baseRefName": "main",
+        "body": "",
+        "changedFiles": 15,
+        "closed": false,
+        "closedAt": null,
+        "comments": [],
+        "commits": [
+            {
+                "authoredDate": "2022-04-24T21:47:26Z",
+                "authors": [
+                    {
+                        "email": "adam@northisup.com",
+                        "id": "MDQ6VXNlcjEyMjYxMg==",
+                        "login": "NorthIsUp",
+                        "name": "Adam Hitchcock"
+                    }
+                ],
+                "committedDate": "2022-12-16T23:20:13Z",
+                "messageBody": "",
+                "messageHeadline": "[docs] add some docscrings",
+                "oid": "f6069b05927c0ea49f38ba343a4393e6158b1f55"
+            },
+            {
+                "authoredDate": "2022-12-16T19:43:06Z",
+                "authors": [
+                    {
+                        "email": "adam@northisup.com",
+                        "id": "MDQ6VXNlcjEyMjYxMg==",
+                        "login": "NorthIsUp",
+                        "name": "Adam Hitchcock"
+                    }
+                ],
+                "committedDate": "2022-12-16T23:20:13Z",
+                "messageBody": "",
+                "messageHeadline": "stuff",
+                "oid": "580a0493b4fa806d57f65b6a69695027cf0e4bd6"
+            },
+            {
+                "authoredDate": "2022-12-16T23:39:29Z",
+                "authors": [
+                    {
+                        "email": "adam@northisup.com",
+                        "id": "MDQ6VXNlcjEyMjYxMg==",
+                        "login": "NorthIsUp",
+                        "name": "Adam Hitchcock"
+                    }
+                ],
+                "committedDate": "2022-12-17T00:19:01Z",
+                "messageBody": "",
+                "messageHeadline": "stuff",
+                "oid": "66d0550a6243454e984ca854597ef71e81ffed6b"
+            },
+            {
+                "authoredDate": "2022-12-22T08:31:04Z",
+                "authors": [
+                    {
+                        "email": "adam@northisup.com",
+                        "id": "MDQ6VXNlcjEyMjYxMg==",
+                        "login": "NorthIsUp",
+                        "name": "Adam Hitchcock"
+                    }
+                ],
+                "committedDate": "2022-12-22T08:31:04Z",
+                "messageBody": "",
+                "messageHeadline": "stuff",
+                "oid": "59707eb1334f726d37bd17e9f639957195a753c3"
+            },
+            {
+                "authoredDate": "2023-01-03T21:23:42Z",
+                "authors": [
+                    {
+                        "email": "adam@northisup.com",
+                        "id": "MDQ6VXNlcjEyMjYxMg==",
+                        "login": "NorthIsUp",
+                        "name": "Adam Hitchcock"
+                    }
+                ],
+                "committedDate": "2023-01-03T21:23:42Z",
+                "messageBody": "",
+                "messageHeadline": "tokio maybe",
+                "oid": "2b44b9ab9624725c5a3537cbea0a221d54bbb326"
+            }
+        ],
+        "createdAt": "2022-12-16T19:43:15Z",
+        "deletions": 50,
+        "files": [
+            {
+                "path": ".direnv",
+                "additions": 1,
+                "deletions": 0
+            },
+            {
+                "path": ".gitignore",
+                "additions": 21,
+                "deletions": 0
+            },
+            {
+                "path": "Cargo.toml",
+                "additions": 20,
+                "deletions": 10
+            },
+            {
+                "path": "Makefile",
+                "additions": 15,
+                "deletions": 0
+            },
+            {
+                "path": "rust-toolchain.toml",
+                "additions": 3,
+                "deletions": 0
+            },
+            {
+                "path": "rustfmt.toml",
+                "additions": 20,
+                "deletions": 0
+            },
+            {
+                "path": "src/cli.rs",
+                "additions": 303,
+                "deletions": 0
+            },
+            {
+                "path": "src/git_commands.rs",
+                "additions": 43,
+                "deletions": 0
+            },
+            {
+                "path": "src/main.rs",
+                "additions": 46,
+                "deletions": 40
+            },
+            {
+                "path": "src/prinfo/d1.json",
+                "additions": 324,
+                "deletions": 0
+            },
+            {
+                "path": "src/prinfo/d2.json",
+                "additions": 98,
+                "deletions": 0
+            },
+            {
+                "path": "src/prinfo/mod.rs",
+                "additions": 4,
+                "deletions": 0
+            },
+            {
+                "path": "src/prinfo/models.rs",
+                "additions": 358,
+                "deletions": 0
+            },
+            {
+                "path": "src/prinfo/prinfo.rs",
+                "additions": 143,
+                "deletions": 0
+            },
+            {
+                "path": "src/shell.rs",
+                "additions": 18,
+                "deletions": 0
+            }
+        ],
+        "headRefName": "test3",
+        "headRefOid": "2b44b9ab9624725c5a3537cbea0a221d54bbb326",
+        "headRepository": {
+            "id": "R_kgDOHM-UbA",
+            "name": "git-pr-rust"
+        },
+        "headRepositoryOwner": {
+            "id": "MDQ6VXNlcjEyMjYxMg==",
+            "name": "Adam Hitchcock",
+            "login": "NorthIsUp"
+        },
+        "id": "PR_kwDOHM-UbM5Fq6j2",
+        "isCrossRepository": false,
+        "isDraft": false,
+        "labels": [],
+        "latestReviews": [],
+        "maintainerCanModify": false,
+        "mergeCommit": null,
+        "mergeStateStatus": "UNSTABLE",
+        "mergeable": "MERGEABLE",
+        "mergedAt": null,
+        "mergedBy": null,
+        "milestone": null,
+        "number": 2,
+        "potentialMergeCommit": {
+            "oid": "583e4d6b87ccf6e4ecb4c00d88aee4f7b671110a"
+        },
+        "projectCards": [],
+        "reactionGroups": [],
+        "reviewDecision": "",
+        "reviewRequests": [],
+        "reviews": [],
+        "state": "OPEN",
+        "statusCheckRollup": [
+            {
+                "__typename": "CheckRun",
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "detailsUrl": "https://github.com/NorthIsUp/git-pr-rust/actions/runs/3833092423/jobs/6524161394",
+                "name": "build",
+                "startedAt": "2023-01-03T21:23:59Z",
+                "status": "IN_PROGRESS",
+                "workflowName": "Rust"
+            }
+        ],
+        "title": "stuff",
+        "updatedAt": "2023-01-03T21:23:45Z",
+        "url": "https://github.com/NorthIsUp/git-pr-rust/pull/2"
+    }
+]
