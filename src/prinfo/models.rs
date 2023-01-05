@@ -90,16 +90,13 @@ pub struct Review {
     state: String,
 }
 
-fn empty_string_as_none<'de, D>(deserializer: D) -> Result<Option<CheckConclusionState>, D::Error>
+fn error_as_none<'de, D>(deserializer: D) -> Result<Option<CheckConclusionState>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
     match CheckConclusionState::deserialize(deserializer) {
         Ok(result) => Ok(Some(result)),
-        Err(e) => {
-            debug!("masking: {:?}", e);
-            Ok(None)
-        }
+        Err(e) => Ok(None),
     }
 }
 
@@ -108,7 +105,7 @@ where
 pub enum StatusCheck {
     CheckRun {
         completedAt: String,
-        #[serde(deserialize_with = "empty_string_as_none")]
+        #[serde(deserialize_with = "error_as_none")]
         conclusion: Option<CheckConclusionState>,
         detailsUrl: String,
         name: String,
@@ -123,27 +120,6 @@ pub enum StatusCheck {
         targetUrl: String,
     },
 }
-
-// #[derive(Debug, Serialize, Deserialize, Clone)]
-// pub struct CheckRun {
-//     pub __typename: String,
-//     pub completedAt: String,
-//     pub conclusion: CheckConclusionState,
-//     pub detailsUrl: String,
-//     pub name: String,
-//     pub startedAt: String,
-//     pub status: CheckStatusState,
-//     pub workflowName: String,
-// }
-
-// #[derive(Debug, Serialize, Deserialize, Clone)]
-// pub struct StatusContext {
-//     pub __typename: String,
-//     pub context: String,
-//     pub startedAt: String,
-//     pub state: StatusContextState,
-//     pub targetUrl: String,
-// }
 
 #[derive(Debug, Serialize, Deserialize, Clone, FieldNamesAsArray)]
 pub struct Label {
@@ -258,45 +234,6 @@ impl StatusContextState {
         }
     }
 }
-
-// impl CheckRun {
-//     pub fn is_complete(&self) -> bool {
-//         self.status.is_complete()
-//     }
-//     pub fn short_status_str(&self) -> &str {
-//         match self.is_complete() {
-//             true => match self.conclusion {
-//                 CheckConclusionState::ActionRequired => "Fail",
-//                 CheckConclusionState::Cancelled => "Pass",
-//                 CheckConclusionState::Failure => "Fail",
-//                 CheckConclusionState::Neutral => "Pass",
-//                 CheckConclusionState::Skipped => "Skip",
-//                 CheckConclusionState::Stale => "Fail",
-//                 CheckConclusionState::StartupFailure => "Fail",
-//                 CheckConclusionState::Success => " OK ",
-//                 CheckConclusionState::TimedOut => "Fail",
-//             },
-//             false => "..",
-//         }
-//     }
-// }
-
-// impl StatusContext {
-//     pub fn is_complete(&self) -> bool {
-//         self.state.is_complete()
-//     }
-//     pub fn short_status_str(&self) -> &str {
-//         match self.is_complete() {
-//             true => match self.state {
-//                 StatusContextState::Error => "Fail",
-//                 StatusContextState::Failure => "Fail",
-//                 StatusContextState::Success => "Pass",
-//                 _ => panic!("unexpected status context state: {:?}", self.state),
-//             },
-//             false => "..",
-//         }
-//     }
-// }
 
 impl StatusCheck {
     fn type_name(&self) -> &'static str {

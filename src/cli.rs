@@ -6,15 +6,19 @@ use std::{
     time::{Duration, Instant, SystemTime},
 };
 
+use clap::Parser;
 use colored::Colorize;
 use console::Emoji;
 use indicatif::{HumanDuration, MultiProgress, ProgressBar, ProgressStyle};
+use log::debug;
 
 use crate::{
+    args::Args,
     git_commands::{current_branch_name, current_repo},
     prinfo::PrInfo,
 };
 struct App {
+    args: Args,
     branch: String,
     mp: MultiProgress,
     progress_bars: Arc<Mutex<HashMap<String, ProgressBar>>>,
@@ -88,9 +92,17 @@ impl Pb {
 
 impl App {
     fn new() -> Self {
-        let repo = current_repo();
-        let branch = current_branch_name(&repo).expect("must have a branch name");
+        let args = Args::parse();
+        let branch = match &args.branch {
+            Some(b) => b.to_string(),
+            None => {
+                let repo = current_repo();
+                current_branch_name(&repo).expect("must have a branch name")
+            }
+        };
+
         Self {
+            args,
             branch,
             mp: MultiProgress::new(),
             progress_bars: Arc::new(Mutex::new(HashMap::new())),

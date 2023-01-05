@@ -11,16 +11,6 @@ use crate::{
     shell,
 };
 
-fn mocks(s: &str) -> String {
-    match s {
-        "fix-main/1" => include_str!("d1.json").to_string(),
-        "simple" => include_str!("d2.json").to_string(),
-        "d2" => include_str!("d2.json").to_string(),
-        "d4" => include_str!("d4.json").to_string(),
-        _ => panic!("no mock for {}", s),
-    }
-}
-
 pub fn map_to_string<S: Into<String>>(vec: Vec<S>) -> String where {
     vec.into_iter()
         .map(|s| s.into())
@@ -72,16 +62,29 @@ impl PrInfo {
     /// fetch the pr info from github via their api
     pub fn get<S: Into<String>>(branch: S) -> Option<PrInfo> {
         // todo: migrate to the gh structured format
-        let branch = branch.into();
+        let branch: String = branch.into();
         let format_str = PrInfo::FIELD_NAMES_AS_ARRAY.join(",");
         let cmd = format!("gh pr list --json {format_str} -H {branch}");
 
-        let stdout = match shell::run(cmd).ok() {
-            None => None,
-            Some(s) if s.stdout.is_empty() => None,
-            Some(s) => Some(s.stdout_str()),
+        let stdout = if branch.starts_with("gh-mock-") {
+            Some(
+                match branch.as_str() {
+                    "gh-mock-fix-main" => include_str!("mock_data/d1.json"),
+                    "gh-mock-simple" => include_str!("mock_data/d2.json"),
+                    "gh-mock-building" => include_str!("mock_data/d4.json"),
+                    "gh-mock-done" => include_str!("mock_data/d2.json"),
+                    _ => panic!("no mock for {}", branch),
+                }
+                .to_string(),
+            )
+        } else {
+            match shell::run(cmd).ok() {
+                None => None,
+                Some(s) if s.stdout.is_empty() => None,
+                Some(s) => Some(s.stdout_str()),
+            }
         };
-        // let stdout = Some(mocks("d4"));
+
         // debug!("{:?}", stdout.clone()?);
         let pr_info = match from_str::<[PrInfo; 1]>(&stdout?) {
             Ok([pr_info]) => PrInfo {
